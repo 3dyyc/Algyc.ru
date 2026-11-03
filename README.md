@@ -1,20 +1,38 @@
 # АЛГЫС — ювелирный салон
 
-Статический интернет-магазин для GitHub Pages. Фронтенд подключён к Supabase project `Zolotoy_kovsh.ru` (организация Satoru project v.2), но использует отдельные таблицы с префиксом `algys_` и отдельный Storage bucket `algys-media`.
+Статический интернет-магазин для GitHub Pages.
+
+## Supabase
+Сайт подключён к отдельному проекту **Algyc.ru** в организации **Satoru project v.2**:
+- Project ref: `darjsihmkglmgsefdbfw`
+- API URL: `https://darjsihmkglmgsefdbfw.supabase.co`
+- Storage bucket: `algys-media`
+
+Таблицы: `algys_categories`, `algys_products`, `algys_banners`, `algys_orders`, `algys_admin_users`.
+Фотографии хранятся в отдельном публичном bucket `algys-media`. В браузере используется только publishable key; service-role key в репозитории отсутствует.
+
+## Первый администратор
+1. В Supabase → Authentication → Users создайте пользователя с нужной почтой (например, `vmamaev300@gmail.com`) и задайте ему пароль.
+2. Откройте SQL Editor этого проекта и выполните:
+
+```sql
+insert into public.algys_admin_users (user_id)
+select id
+from auth.users
+where lower(email) = lower('vmamaev300@gmail.com')
+on conflict (user_id) do nothing;
+```
+
+3. В панели сайта войдите с этим email и паролем. Админ-доступ определяется членством в `algys_admin_users`, а не значением email на стороне браузера. RLS и Storage также проверяют членство.
 
 ## Публикация GitHub Pages
-1. Откройте Settings → Pages.
-2. В разделе Build and deployment выберите **Deploy from a branch**.
-3. Branch: **main**.
-4. Folder: **/(root)**.
-5. Нажмите Save. Адрес проекта: https://3dyyc.github.io/Algyc.ru/
+Откройте Settings → Pages:
+- Source: Deploy from a branch
+- Branch: `main`
+- Folder: `/(root)`
+- Save
 
-## Администратор
-Панель открывается кнопкой ⌘ в шапке. Разрешён только email `vmamaev300@gmail.com`.
-В панели нажмите «Создать аккаунт», задайте пароль и подтвердите регистрацию по письму (если подтверждение email включено в Supabase). После подтверждения войдите. Доступ дополнительно ограничен RLS на стороне базы и Storage.
-
-## Каталог
-Товары, категории, баннеры, заказы хранятся в отдельных таблицах `algys_products`, `algys_categories`, `algys_banners`, `algys_orders`. Фотографии загружаются в публичный bucket `algys-media`. Публичный ключ Supabase используется только в браузере; service-role key в репозитории отсутствует.
+Адрес: https://3dyyc.github.io/Algyc.ru/
 
 ## Заказы
-Форма сохраняет заявку в базе и открывает WhatsApp салона: +7 914 270-87-17. Наличие и окончательная стоимость подтверждаются менеджером.
+Заказ сохраняется в `algys_orders` и открывает WhatsApp салона: +7 914 270-87-17. Наличие и окончательная стоимость подтверждаются менеджером.
